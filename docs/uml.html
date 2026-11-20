@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagrama de Classes</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; background: #fff; color: #222; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  p { margin-top: 0; color: #555; }
+  .legenda { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0 20px; font-size: 14px; }
+  .legenda span { padding: 4px 10px; border-radius: 4px; border: 1px solid #999; }
+  .c { background: #dbeafe; } .e { background: #dcfce7; } .s { background: #fef3c7; } .o { background: #fce7f3; }
+  .diagrama { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Sistema de Pedidos — Diagrama de Classes</h1>
+<p>Estereótipos &lt;&lt;...&gt;&gt; indicam o papel de cada classe no padrão.</p>
+<div class="legenda">
+  <span class="c">Criacional: Factory</span>
+  <span class="e">Estrutural: Adapter</span>
+  <span class="s">Comportamental: Strategy</span>
+  <span class="o">Comportamental: Observer</span>
+</div>
+<div class="diagrama">
+<pre class="mermaid">
+classDiagram
+    direction LR
+
+    class PedidoService {
+        +criarPedido(Cliente, Map, EstrategiaFrete) Pedido
+        +pagar(int, DadosPagamento) ResultadoPagamento
+        +enviar(int)
+        +confirmarEntrega(int)
+        +cancelar(int)
+        -mudarStatus(Pedido, StatusPedido)
+    }
+    class Pedido {
+        -int id
+        -List~ItemPedido~ itens
+        -StatusPedido status
+        -BigDecimal valorFrete
+        +getSubtotal() BigDecimal
+        +getPesoTotalKg() double
+        +getTotal() BigDecimal
+        +aplicarFrete(String, BigDecimal, int)
+        +alterarStatus(StatusPedido)
+    }
+    class ItemPedido
+    class Produto
+    class Cliente
+    class StatusPedido {
+        &lt;&lt;enumeration&gt;&gt;
+        +podeMudarPara(StatusPedido) boolean
+    }
+
+    class EstrategiaFrete {
+        &lt;&lt;interface Strategy&gt;&gt;
+        +getNome() String
+        +calcular(Pedido) CotacaoFrete
+    }
+    class FretePac {
+        &lt;&lt;ConcreteStrategy&gt;&gt;
+    }
+    class FreteSedex {
+        &lt;&lt;ConcreteStrategy&gt;&gt;
+    }
+    class RetiradaNaLoja {
+        &lt;&lt;ConcreteStrategy&gt;&gt;
+    }
+
+    class ProcessadorPagamentoFactory {
+        &lt;&lt;Factory&gt;&gt;
+        +criar(FormaPagamento) ProcessadorPagamento
+    }
+    class ProcessadorPagamento {
+        &lt;&lt;interface Adapter Target&gt;&gt;
+        +processar(Pedido, DadosPagamento) ResultadoPagamento
+    }
+    class PixAdapter {
+        &lt;&lt;Adapter&gt;&gt;
+    }
+    class CartaoCreditoAdapter {
+        &lt;&lt;Adapter&gt;&gt;
+    }
+    class BancoPixApi {
+        &lt;&lt;Adaptee SDK externo&gt;&gt;
+        +criarCobranca(String, long, String) CobrancaPix
+    }
+    class CardGatewayClient {
+        &lt;&lt;Adaptee SDK externo&gt;&gt;
+        +charge(String, String, String) GatewayResponse
+    }
+
+    class PublicadorEventosPedido {
+        &lt;&lt;Subject&gt;&gt;
+        +inscrever(ObservadorPedido)
+        +remover(ObservadorPedido)
+        +notificar(Pedido, StatusPedido)
+    }
+    class ObservadorPedido {
+        &lt;&lt;interface Observer&gt;&gt;
+        +statusAlterado(Pedido, StatusPedido)
+    }
+    class NotificadorEmail {
+        &lt;&lt;ConcreteObserver&gt;&gt;
+    }
+    class NotificadorSms {
+        &lt;&lt;ConcreteObserver&gt;&gt;
+    }
+    class RegistroAuditoria {
+        &lt;&lt;ConcreteObserver&gt;&gt;
+    }
+
+    Pedido "1" *-- "1..*" ItemPedido
+    ItemPedido --> Produto
+    Pedido --> Cliente
+    Pedido --> StatusPedido
+
+    PedidoService ..> EstrategiaFrete : usa
+    EstrategiaFrete <|.. FretePac
+    EstrategiaFrete <|.. FreteSedex
+    EstrategiaFrete <|.. RetiradaNaLoja
+
+    PedidoService --> ProcessadorPagamentoFactory
+    ProcessadorPagamentoFactory ..> ProcessadorPagamento : cria
+    ProcessadorPagamento <|.. PixAdapter
+    ProcessadorPagamento <|.. CartaoCreditoAdapter
+    PixAdapter --> BancoPixApi : adapta
+    CartaoCreditoAdapter --> CardGatewayClient : adapta
+
+    PedidoService --> PublicadorEventosPedido
+    PublicadorEventosPedido o-- "*" ObservadorPedido
+    ObservadorPedido <|.. NotificadorEmail
+    ObservadorPedido <|.. NotificadorSms
+    ObservadorPedido <|.. RegistroAuditoria
+
+    style ProcessadorPagamentoFactory fill:#dbeafe,stroke:#2563eb
+    style ProcessadorPagamento fill:#dcfce7,stroke:#16a34a
+    style PixAdapter fill:#dcfce7,stroke:#16a34a
+    style CartaoCreditoAdapter fill:#dcfce7,stroke:#16a34a
+    style BancoPixApi fill:#f0fdf4,stroke:#16a34a,stroke-dasharray:4
+    style CardGatewayClient fill:#f0fdf4,stroke:#16a34a,stroke-dasharray:4
+    style EstrategiaFrete fill:#fef3c7,stroke:#d97706
+    style FretePac fill:#fef3c7,stroke:#d97706
+    style FreteSedex fill:#fef3c7,stroke:#d97706
+    style RetiradaNaLoja fill:#fef3c7,stroke:#d97706
+    style PublicadorEventosPedido fill:#fce7f3,stroke:#db2777
+    style ObservadorPedido fill:#fce7f3,stroke:#db2777
+    style NotificadorEmail fill:#fce7f3,stroke:#db2777
+    style NotificadorSms fill:#fce7f3,stroke:#db2777
+    style RegistroAuditoria fill:#fce7f3,stroke:#db2777
+</pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'default', classDiagram: { useMaxWidth: false } });</script>
+</body>
+</html>

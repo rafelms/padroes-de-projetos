@@ -1,0 +1,107 @@
+@startuml
+title Sistema de Pedidos - Diagrama de Classes
+left to right direction
+skinparam classAttributeIconSize 0
+
+package dominio {
+  class Pedido {
+    - id : int
+    - itens : List<ItemPedido>
+    - status : StatusPedido
+    - valorFrete : BigDecimal
+    + getSubtotal() : BigDecimal
+    + getPesoTotalKg() : double
+    + getTotal() : BigDecimal
+    + aplicarFrete(String, BigDecimal, int)
+    + alterarStatus(StatusPedido)
+  }
+  class ItemPedido
+  class Produto
+  class Cliente
+  enum StatusPedido {
+    AGUARDANDO_PAGAMENTO
+    PAGO
+    ENVIADO
+    ENTREGUE
+    CANCELADO
+    + podeMudarPara(StatusPedido) : boolean
+  }
+}
+
+package aplicacao {
+  class PedidoService {
+    + criarPedido(Cliente, Map, EstrategiaFrete) : Pedido
+    + pagar(int, DadosPagamento) : ResultadoPagamento
+    + enviar(int)
+    + confirmarEntrega(int)
+    + cancelar(int)
+    - mudarStatus(Pedido, StatusPedido)
+  }
+}
+
+package "frete (STRATEGY)" #FEF3C7 {
+  interface EstrategiaFrete <<Strategy>> {
+    + getNome() : String
+    + calcular(Pedido) : CotacaoFrete
+  }
+  class FretePac <<ConcreteStrategy>>
+  class FreteSedex <<ConcreteStrategy>>
+  class RetiradaNaLoja <<ConcreteStrategy>>
+}
+
+package "pagamento (FACTORY + ADAPTER)" #DCFCE7 {
+  class ProcessadorPagamentoFactory <<Factory>> {
+    + criar(FormaPagamento) : ProcessadorPagamento
+  }
+  interface ProcessadorPagamento <<Target>> {
+    + processar(Pedido, DadosPagamento) : ResultadoPagamento
+  }
+  class PixAdapter <<Adapter>>
+  class CartaoCreditoAdapter <<Adapter>>
+  package externo {
+    class BancoPixApi <<Adaptee>> {
+      + criarCobranca(String, long, String) : CobrancaPix
+    }
+    class CardGatewayClient <<Adaptee>> {
+      + charge(String, String, String) : GatewayResponse
+    }
+  }
+}
+
+package "notificacao (OBSERVER)" #FCE7F3 {
+  class PublicadorEventosPedido <<Subject>> {
+    + inscrever(ObservadorPedido)
+    + remover(ObservadorPedido)
+    + notificar(Pedido, StatusPedido)
+  }
+  interface ObservadorPedido <<Observer>> {
+    + statusAlterado(Pedido, StatusPedido)
+  }
+  class NotificadorEmail <<ConcreteObserver>>
+  class NotificadorSms <<ConcreteObserver>>
+  class RegistroAuditoria <<ConcreteObserver>>
+}
+
+Pedido "1" *-- "1..*" ItemPedido
+ItemPedido --> Produto
+Pedido --> Cliente
+Pedido --> StatusPedido
+
+PedidoService ..> EstrategiaFrete : usa
+EstrategiaFrete <|.. FretePac
+EstrategiaFrete <|.. FreteSedex
+EstrategiaFrete <|.. RetiradaNaLoja
+
+PedidoService --> ProcessadorPagamentoFactory
+ProcessadorPagamentoFactory ..> ProcessadorPagamento : cria
+ProcessadorPagamento <|.. PixAdapter
+ProcessadorPagamento <|.. CartaoCreditoAdapter
+PixAdapter --> BancoPixApi : adapta
+CartaoCreditoAdapter --> CardGatewayClient : adapta
+
+PedidoService --> PublicadorEventosPedido
+PublicadorEventosPedido o-- "*" ObservadorPedido
+ObservadorPedido <|.. NotificadorEmail
+ObservadorPedido <|.. NotificadorSms
+ObservadorPedido <|.. RegistroAuditoria
+@enduml

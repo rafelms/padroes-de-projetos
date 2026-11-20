@@ -1,0 +1,25 @@
+# Saida de compilacao (gerada por executar.bat / executar.sh e pelo IntelliJ)
+build/
+out/
+dist/
+*.class
+*.jar
+fontes.txt
+
+# IntelliJ: so a configuracao do modulo vai para o repositorio.
+# Arquivos pessoais da IDE (workspace, temas, historico) ficam de fora.
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+
+# VS Code / Eclipse
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
