@@ -5,6 +5,7 @@ que eles existem. A ideia é: ler pouco, rodar muito, e depois mexer.
 
 > A explicação conceitual completa (UML, justificativas e análise crítica) está em
 > [DOCUMENTACAO.md](DOCUMENTACAO.md). Este guia é o mapa prático do código.
+> Links para a documentação de cada padrão estão em [REFERENCIAS.md](REFERENCIAS.md).
 
 ---
 

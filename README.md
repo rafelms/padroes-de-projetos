@@ -71,6 +71,7 @@ docs/                          documentação e guia de estudo
 ## Documentos
 
 - [docs/GUIA_DE_ESTUDO.md](docs/GUIA_DE_ESTUDO.md) — **comece por aqui**: ordem de leitura do código, onde está cada padrão e exercícios
+- [docs/REFERENCIAS.md](docs/REFERENCIAS.md) — links para a documentação de cada padrão (Refactoring.Guru, Java Design Patterns, Oracle, GoF)
 - [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md) — problema, arquitetura, UML, justificativa de cada padrão e análise crítica
 - [docs/ROTEIRO_APRESENTACAO.md](docs/ROTEIRO_APRESENTACAO.md) — roteiro de 30 min com as falas e as linhas do código
 - [docs/uml.html](docs/uml.html) — diagrama de classes renderizado (abra no navegador)
